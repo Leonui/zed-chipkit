@@ -1,0 +1,13 @@
+# UPF sample
+set_design_top top
+create_power_domain PD_TOP -elements {top}
+create_supply_port VDD
+create_supply_port VSS
+create_supply_net VDD_NET
+create_supply_net VSS_NET
+connect_supply_net VDD_NET -ports {VDD}
+connect_supply_net VSS_NET -ports {VSS}
+set_domain_supply_net PD_TOP -primary_power_net VDD_NET -primary_ground_net VSS_NET
+set_isolation ISO_TOP -domain PD_TOP -applies_to outputs -clamp_value 0
+create_pst PST_TOP
+add_pst_state ON -pst PST_TOP -state {FULL_ON}

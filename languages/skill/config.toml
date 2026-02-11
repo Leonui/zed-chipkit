@@ -1,0 +1,10 @@
+name = "SKILL"
+grammar = "scheme"
+path_suffixes = ["il", "ils", "sk"]
+line_comments = ["; "]
+block_comments = [["/* ", " */"]]
+tab_size = 2
+brackets = [
+  { start = "(", end = ")", close = true, newline = false },
+  { start = "\"", end = "\"", close = true, newline = false, not_in = ["string"] },
+]

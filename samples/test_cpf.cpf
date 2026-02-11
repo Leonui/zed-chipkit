@@ -1,0 +1,10 @@
+# CPF sample
+set_design top
+set_scope /top
+create_power_nets VDD
+create_ground_nets VSS
+create_power_domain PD_TOP -instances {top/*}
+create_nominal_condition NOM_TOP -voltage 1.0
+create_power_mode PM_ON -domain_conditions {PD_TOP@NOM_TOP}
+create_isolation_rule ISO_RULE -from PD_TOP -to PD_TOP -isolation_output low
+create_level_shifter_rule LS_RULE -from PD_TOP -to PD_TOP

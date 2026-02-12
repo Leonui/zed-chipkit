@@ -1,10 +1,16 @@
 id = "chipkit"
 name = "ChipKit"
-version = "0.1.0"
+version = "0.2.0"
 schema_version = 1
 authors = ["Ang Li <mail@angme.org>"]
-description = "Adds syntax highlighting for chip design languages: Verilog, SystemVerilog, TCL, SDC, UPF, CPF and SKILL."
+description = "Chip design language support: syntax highlighting, diagnostics, formatting, and code actions for Verilog, SystemVerilog, TCL, SDC, UPF, CPF and SKILL."
 repository = "https://github.com/Leonui/zed-chipkit"
+
+[language_servers.verible]
+languages = ["Verilog", "SystemVerilog"]
+
+[language_servers.tclsp]
+languages = ["Tcl", "SDC", "UPF", "CPF"]
 
 [grammars.verilog]
 repository = "https://github.com/tree-sitter/tree-sitter-verilog"

@@ -1,10 +1,64 @@
-# CPF sample
-set_design top
-set_scope /top
-create_power_nets VDD
-create_ground_nets VSS
-create_power_domain PD_TOP -instances {top/*}
-create_nominal_condition NOM_TOP -voltage 1.0
-create_power_mode PM_ON -domain_conditions {PD_TOP@NOM_TOP}
-create_isolation_rule ISO_RULE -from PD_TOP -to PD_TOP -isolation_output low
-create_level_shifter_rule LS_RULE -from PD_TOP -to PD_TOP
+# CPF sample — LSP diagnostics & formatting demo
+# Open in Zed with ChipKit + tclsp to see tclint in action.
+#
+# What to try:
+#   1. Check the Problems panel for lint diagnostics
+#   2. Run "Format Document" to fix indentation
+#   3. CPF is Tcl-based — tclsp provides linting
+
+# ── Power intent (Cadence CPF format) ─────────────────────────
+set_design top_chip
+set_scope /top_chip
+
+# ── Power and ground nets ──────────────────────────────────────
+create_power_nets -nets {VDD VDD_LOW} -voltage {1.0 0.8}
+create_ground_nets -nets VSS
+
+# ── Messy indentation — formatter cleans this up ───────────────
+create_power_domain PD_CORE \
+    -default \
+  -instances {u_core/*}
+  create_power_domain PD_MEM \
+      -instances {u_sram/*}
+    create_power_domain PD_IO \
+  -instances {u_pads/*}
+
+# ── Nominal conditions ─────────────────────────────────────────
+create_nominal_condition NOM_HIGH -voltage 1.0
+create_nominal_condition NOM_LOW  -voltage 0.8
+
+# ── Power modes ────────────────────────────────────────────────
+create_power_mode PM_RUN \
+  -domain_conditions {PD_CORE@NOM_HIGH PD_MEM@NOM_HIGH PD_IO@NOM_HIGH}
+create_power_mode PM_LOW_POWER \
+  -domain_conditions {PD_CORE@NOM_LOW PD_MEM@NOM_LOW PD_IO@NOM_HIGH}
+create_power_mode PM_SLEEP \
+  -domain_conditions {PD_CORE@off PD_MEM@NOM_LOW PD_IO@NOM_HIGH}
+
+# ── Isolation rules ────────────────────────────────────────────
+create_isolation_rule ISO_CORE \
+  -from PD_CORE \
+  -to PD_IO \
+  -isolation_condition {!u_pmu/core_active} \
+  -isolation_output low
+
+create_isolation_rule ISO_MEM \
+  -from PD_MEM \
+  -to PD_CORE \
+  -isolation_condition {!u_pmu/mem_active} \
+  -isolation_output high
+
+# ── Level shifters ─────────────────────────────────────────────
+create_level_shifter_rule LS_LOW_TO_HIGH \
+  -from PD_CORE \
+  -to PD_IO
+
+# ── State retention ────────────────────────────────────────────
+create_state_retention_rule RET_CORE \
+  -domain PD_CORE \
+  -restore_edge {u_pmu/restore} \
+  -save_edge {u_pmu/save}
+
+# ── Unbraced expr — tclint flags this ─────────────────────────
+set num_modes 3
+set total_conditions [expr $num_modes * 3]

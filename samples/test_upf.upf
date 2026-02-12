@@ -1,13 +1,73 @@
-# UPF sample
-set_design_top top
-create_power_domain PD_TOP -elements {top}
-create_supply_port VDD
+# UPF sample — LSP diagnostics & formatting demo
+# Open in Zed with ChipKit + tclsp to see tclint in action.
+#
+# What to try:
+#   1. Check the Problems panel for lint diagnostics
+#   2. Run "Format Document" to fix indentation
+#   3. UPF is Tcl-based — tclsp provides full linting
+
+# ── Power intent for a multi-domain SoC ────────────────────────
+set_design_top soc_top
+set_scope soc_top
+
+# ── Supply network ─────────────────────────────────────────────
+create_supply_port VDD_CORE
+create_supply_port VDD_IO
 create_supply_port VSS
-create_supply_net VDD_NET
-create_supply_net VSS_NET
-connect_supply_net VDD_NET -ports {VDD}
-connect_supply_net VSS_NET -ports {VSS}
-set_domain_supply_net PD_TOP -primary_power_net VDD_NET -primary_ground_net VSS_NET
-set_isolation ISO_TOP -domain PD_TOP -applies_to outputs -clamp_value 0
-create_pst PST_TOP
-add_pst_state ON -pst PST_TOP -state {FULL_ON}
+
+create_supply_net VDD_CORE_NET
+create_supply_net VDD_IO_NET
+  create_supply_net VSS_NET
+
+connect_supply_net VDD_CORE_NET -ports {VDD_CORE}
+  connect_supply_net VDD_IO_NET -ports {VDD_IO}
+    connect_supply_net VSS_NET -ports {VSS}
+
+# ── Power domains ──────────────────────────────────────────────
+create_power_domain PD_CORE -elements {u_cpu u_cache u_bus}
+create_power_domain PD_PERI -elements {u_uart u_spi u_gpio}
+create_power_domain PD_IO   -elements {u_pad_ring}
+
+set_domain_supply_net PD_CORE \
+  -primary_power_net VDD_CORE_NET \
+  -primary_ground_net VSS_NET
+set_domain_supply_net PD_PERI \
+  -primary_power_net VDD_CORE_NET \
+  -primary_ground_net VSS_NET
+set_domain_supply_net PD_IO \
+  -primary_power_net VDD_IO_NET \
+  -primary_ground_net VSS_NET
+
+# ── Isolation and level shifting ───────────────────────────────
+set_isolation ISO_PERI_TO_CORE \
+  -domain PD_PERI \
+  -applies_to outputs \
+  -clamp_value 0 \
+  -isolation_power_net VDD_CORE_NET \
+  -isolation_ground_net VSS_NET
+
+set_level_shifter LS_IO_TO_CORE \
+  -domain PD_IO \
+  -applies_to inputs \
+  -rule low_to_high \
+  -location self
+
+# ── Retention ──────────────────────────────────────────────────
+set_retention RET_PERI \
+  -domain PD_PERI \
+  -retention_power_net VDD_CORE_NET \
+  -retention_ground_net VSS_NET
+
+# ── Power states ───────────────────────────────────────────────
+create_pst SOC_PST
+
+add_pst_state ALL_ON -pst SOC_PST \
+  -state {PD_CORE=FULL_ON PD_PERI=FULL_ON PD_IO=FULL_ON}
+add_pst_state PERI_OFF -pst SOC_PST \
+  -state {PD_CORE=FULL_ON PD_PERI=OFF PD_IO=FULL_ON}
+add_pst_state SLEEP -pst SOC_PST \
+  -state {PD_CORE=OFF PD_PERI=OFF PD_IO=FULL_ON}
+
+# ── Unbraced expr — tclint flags this ─────────────────────────
+set num_domains 3
+set total_nets [expr $num_domains * 2 + 1]

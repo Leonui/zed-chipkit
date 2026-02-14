@@ -1,5 +1,5 @@
 name = "SDC"
-grammar = "tcl"
+grammar = "sdc"
 path_suffixes = ["sdc"]
 line_comments = ["# "]
 tab_size = 2

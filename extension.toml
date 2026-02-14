@@ -20,6 +20,10 @@ commit = "227d277b6a1a5e2bf818d6206935722a7503de08"
 repository = "https://github.com/tree-sitter-grammars/tree-sitter-tcl"
 commit = "8f11ac7206a54ed11210491cee1e0657e2962c47"
 
+[grammars.sdc]
+repository = "https://github.com/Leonui/tree-sitter-sdc"
+commit = "a1856ebc47ae0917578e91f0e32affc5a104df63"
+
 [grammars.systemverilog]
 repository = "https://github.com/gmlarumbe/tree-sitter-systemverilog"
 commit = "7c4b01b7df2f6e7fa1f698c9d30ac8f93af18ed2"

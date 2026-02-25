@@ -1,20 +1,13 @@
 id = "chipkit"
 name = "ChipKit"
-version = "0.2.0"
+version = "0.1.1"
 schema_version = 1
 authors = ["Ang Li <mail@angme.org>"]
-description = "Chip design language support: syntax highlighting, diagnostics, formatting, and code actions for Verilog, SystemVerilog, TCL, SDC, UPF, CPF and SKILL."
+description = "Chip design language support: syntax highlighting and diagnostics for SDC, UPF, CPF, and SKILL."
 repository = "https://github.com/Leonui/zed-chipkit"
 
-[language_servers.verible]
-languages = ["Verilog", "SystemVerilog"]
-
 [language_servers.tclsp]
-languages = ["Tcl", "SDC", "UPF", "CPF"]
-
-[grammars.verilog]
-repository = "https://github.com/tree-sitter/tree-sitter-verilog"
-commit = "227d277b6a1a5e2bf818d6206935722a7503de08"
+languages = ["SDC", "UPF", "CPF"]
 
 [grammars.tcl]
 repository = "https://github.com/tree-sitter-grammars/tree-sitter-tcl"
@@ -23,10 +16,6 @@ commit = "8f11ac7206a54ed11210491cee1e0657e2962c47"
 [grammars.sdc]
 repository = "https://github.com/Leonui/tree-sitter-sdc"
 commit = "a1856ebc47ae0917578e91f0e32affc5a104df63"
-
-[grammars.systemverilog]
-repository = "https://github.com/gmlarumbe/tree-sitter-systemverilog"
-commit = "7c4b01b7df2f6e7fa1f698c9d30ac8f93af18ed2"
 
 [grammars.scheme]
 repository = "https://github.com/6cdh/tree-sitter-scheme"
